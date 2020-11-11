@@ -13,12 +13,14 @@ import java.net.InetAddress;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.SourceDataLine;
 
 import java.text.SimpleDateFormat;
+import java.util.concurrent.TimeUnit;
 
 /*
     @author Zikopis Evangelos
@@ -588,6 +590,13 @@ public class UserApplication {
 
     private static void ithakiCopter(String copterRequestCode, int clientPort, byte[] hostIP, int mode)
     throws IOException {
+        // Execute ithakicopter.jar
+        Process copter = Runtime.getRuntime().exec("java -jar ithakicopter.jar");
+        try{
+            TimeUnit.SECONDS.sleep(1);
+        }catch(Exception ex){
+            System.out.println("[COPTER SLEEP]"+ex);
+        }
         String msg = "";
         // Socket used to receive packets from server
         final DatagramSocket receiveSocket = new DatagramSocket(clientPort);
@@ -597,7 +606,7 @@ public class UserApplication {
         byte[] rxbuffer = new byte[2048];
         DatagramPacket receivePacket = new DatagramPacket(rxbuffer,rxbuffer.length);
 
-        for (int i = 0;i < 5 ; i++){
+        for (int i = 0; i < 5; i++){
             try{
                 receiveSocket.receive(receivePacket);
                 msg = new String(rxbuffer,0,receivePacket.getLength());
@@ -607,7 +616,8 @@ public class UserApplication {
             }
         }
         receiveSocket.close();
-
+        // Kill ithakicopter process
+        copter.destroy();
     }
     
 }
