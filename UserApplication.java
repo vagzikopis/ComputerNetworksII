@@ -1,4 +1,5 @@
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -12,15 +13,18 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
+import java.util.Date;
+import java.util.Iterator;
 
+import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.TargetDataLine;
 
 import java.text.SimpleDateFormat;
-import java.util.concurrent.TimeUnit;
 
 /*
     @author Zikopis Evangelos
@@ -28,32 +32,73 @@ import java.util.concurrent.TimeUnit;
     TODO: Packet Communication, Receive Image, Receive Audio, Copter Communication, Vehile Diagnostics
 */
 public class UserApplication {
-    private static final String echoRequestCode = "E5310";
-    private static final String imageRequestCode = "M0079";
-    private static final String audioRequestCode = "A9184";
-    private static final String copterRequestCode = "Q5367";
-    private static final String vehicleRequestCode = "V0631";
-    private static final int serverPort = 38021;
-    private static final int clientPort = 48021;
+    private static final String echoRequestCode = "E5833";
+    private static final String imageRequestCode = "M7909";
+    private static final String audioRequestCode = "A7732";
+    private static final String copterRequestCode = "Q0191";
+    private static final String vehicleRequestCode = "V5544";
+    private static final int serverPort = 38029;
+    private static final int clientPort = 48029;
     private static final byte[] hostIP = { (byte)155,(byte)207,18,(byte)208 };
+    private static final String date = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
+    private static final String path = "session-" + date;
 
     public static void main(final String[] args) throws IOException {
        
-        System.out.println("The Session has started");
-        // Call echoPackages mode with delay
-        // echoPackages(clientPort, serverPort, echoRequestCode, hostIP, 1);
-        // Call echoPackages mode without delay
-        // echoPackages(clientPort, serverPort, echoRequestCode, hostIP, 2);
-        // Call echoPackages mode with temperatures mode 
+        System.out.println("Session " + date + " has started");
+        File theDir = new File(path);
+        if (!theDir.exists()){
+            theDir.mkdirs();
+        }
+        
+        System.out.println("[ECHO DELAY] "+echoRequestCode);
+        echoPackages(clientPort, serverPort, echoRequestCode, hostIP, 1);
+        sendVoid(serverPort, clientPort, hostIP);
+        System.out.println("[ECHO NON-DELAY] "+echoRequestCode);
+        echoPackages(clientPort, serverPort, echoRequestCode, hostIP, 2);
+        sendVoid(serverPort, clientPort, hostIP);
+        // System.out.println("[ECHO TEMPERATURES] "+echoRequestCode);
         // echoPackages(clientPort, serverPort, echoRequestCode, hostIP, 3);
-        // Call imageCapture with mode 1
-        // imageCapture(imageRequestCode, clientPort, serverPort, hostIP, 1);
-        // Call imageCapture with mode 2
-        // imageCapture(imageRequestCode, clientPort, serverPort, hostIP, 2);
-        // dpcmSound(audioRequestCode, serverPort, clientPort, hostIP, 1);
-        // aqdpcmSound(audioRequestCode, serverPort, clientPort, hostIP, 1);
-        ithakiCopter(copterRequestCode, 48078, hostIP, 1);
 
+        // System.out.println("[IMAGE MODE 1] "+imageRequestCode);
+        // imageCapture(imageRequestCode, clientPort, serverPort, hostIP, 1);
+        // System.out.println("[IMAGE MODE 2] "+imageRequestCode);
+        // imageCapture(imageRequestCode, clientPort, serverPort, hostIP, 2);
+
+        // System.out.println("[DPCM] "+audioRequestCode);
+        // dpcmSound(audioRequestCode, serverPort, clientPort, hostIP, 1);
+        // System.out.println("[DPCM] "+audioRequestCode);
+        // dpcmSound(audioRequestCode, serverPort, clientPort, hostIP, 2);
+       
+        // System.out.println("[AQDPCM] "+audioRequestCode);
+        // // aqdpcmSound(audioRequestCode, serverPort, clientPort, hostIP, "L01");
+        // System.out.println("[AQDPCM] "+audioRequestCode);
+        // aqdpcmSound(audioRequestCode, serverPort, clientPort, hostIP, "L03");
+        
+        // System.out.println("[ITHAKICOPTER]");
+        // ithakiCopter(copterRequestCode, 48078, hostIP, 1);
+        // System.out.println("[ITHAKICOPTER]");
+        // ithakiCopter(copterRequestCode, 48078, hostIP, 2);
+        
+        // String pid;
+        // System.out.println("[DIAGNOSTICS] Engine Run time");
+        // pid = "1F";
+        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+        // System.out.println("[DIAGNOSTICS] Ithaki air temperature");
+        // pid = "0F";
+        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+        // System.out.println("[DIAGNOSTICS] Throttle position");
+        // pid = "11";
+        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+        // System.out.println("[DIAGNOSTICS] Engine RPM");
+        // pid = "0C";
+        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+        // System.out.println("[DIAGNOSTICS] Vehicle speed");
+        // pid = "0D";
+        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+        // System.out.println("[DIAGNOSTICS] Coolant Temperature");
+        // pid = "05";
+        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
     }
 
     private static void echoPackages(final int clientPort, final int serverPort, String echoRequestCode, byte[] hostIP, int echoMode)
@@ -62,15 +107,15 @@ public class UserApplication {
         if (echoMode == 1) {
             // Delay Mode
             System.out.println("Echo Delay Mode "+echoRequestCode);
-            echoRequestCode = echoRequestCode+"\r";
+            echoRequestCode = echoRequestCode;
         } else if (echoMode == 2) {
             // Non Delay Mode
             System.out.println("Echo non-Delay Mode");
-            echoRequestCode = "E0000\r";
+            echoRequestCode = "E0000";
         } else {
             // Temperature Mode
             System.out.println("Temperature Delay Mode");
-            echoRequestCode = echoRequestCode+"T00\r";
+            echoRequestCode = echoRequestCode+"T00";
         }
         // Server's response
         String msg ="";
@@ -89,7 +134,7 @@ public class UserApplication {
         byte[] rxbuffer = new byte[2048];
         DatagramPacket receivePacket = new DatagramPacket(rxbuffer,rxbuffer.length);
         // Indexes used for while loop termination
-        double start = 0, end = 0, sessionTime = 10*1000;
+        double start = 0, end = 0, sessionTime = 2*60*1000;
         // Indexes used to messure communication time
         double sendTime = 0, recTime = 0;
         ArrayList<Double> receiveTimes = new ArrayList<Double>();
@@ -97,9 +142,7 @@ public class UserApplication {
         int packetCounter = 0;
         // Initialize start index
         start = System.nanoTime();
-        int tempCounter = 0;
-        int errors = 0;
-        while(tempCounter < 5)
+        while(end < sessionTime)
         {
             // Send packet to server
             try {
@@ -118,10 +161,8 @@ public class UserApplication {
                 System.out.println("Communication time: " + recTime + " ms");
             } catch (final Exception x) {
                 System.err.println("[ECHO]" + x);
-                errors++;
             }
             end = (System.nanoTime() - start) / 1000000;
-            tempCounter++;
         }
         double avg = 0;
         // Total received packets 
@@ -130,23 +171,21 @@ public class UserApplication {
             avg = sessionTime / packetCounter;
         }
         // Print results
-        System.out.println("Errors: " + String.valueOf(errors) + "/" +  String.valueOf(tempCounter));
-        System.out.println("Total packets received: " + String.valueOf(packetCounter));
-        System.out.println("Average time per packet: " + String.valueOf(avg) + " Milliseconds");
-        System.out.println("Communication Time: " + String.valueOf(sessionTime/(60*1000)) + " Minute");
-        if (echoMode == 2) {
-            System.out.println("Average Temperature at station T00: 0 Celcius");
-        }
+        System.out.println("Total packets received: " + packetCounter);
+        System.out.println("Average time per packet: " + avg + " Milliseconds");
+        System.out.println("Communication Time: " + sessionTime/(60*1000) + " Minute");
+        
         BufferedWriter bw;
         // Save communication times to a file named "echoRequestCode".txt
         if (echoMode!=3) {
             bw = null;
             try {
-                File file = new File(echoRequestCode+".csv");
-                bw = new BufferedWriter( new FileWriter((echoRequestCode+".csv"), false));
+                File file = new File(path+"/"+echoRequestCode+".csv");
+                bw = new BufferedWriter( new FileWriter(file, false));
                 if (!file.exists()){
                     file.createNewFile();
                 }
+                bw.write("ResponseTimes");
                 for(int i=0; i<receiveTimes.size(); i++)
                 {
                     bw.write(String.valueOf(receiveTimes.get(i)));
@@ -164,7 +203,6 @@ public class UserApplication {
                 }
             }
         }
-
         // Throughput Calculation 
         double timeSum=0;
         // Packet counter to count packets inside the 8-sec window
@@ -196,11 +234,12 @@ public class UserApplication {
         if (echoMode!=3) {
             bw = null;
             try {
-                File file = new File("R"+echoRequestCode+".csv");
-                bw = new BufferedWriter( new FileWriter(("R"+echoRequestCode+".csv"), false));
+                File file = new File(path+"/"+"R"+echoRequestCode+".csv");
+                bw = new BufferedWriter( new FileWriter(file, false));
                 if (!file.exists()){
                     file.createNewFile();
                 }
+                bw.write("R");
                 for(int i=0; i<R.size(); i++)
                 {
                     bw.write(String.valueOf(R.get(i)));
@@ -258,7 +297,7 @@ public class UserApplication {
         DatagramPacket receivePacket = new DatagramPacket(rxbuffer,rxbuffer.length);
         // Begin communication
         sendSocket.send(sendPacket);
-        FileOutputStream imageFile = new FileOutputStream(imageRequestCode+".jpeg");
+        FileOutputStream imageFile = new FileOutputStream(path+"/"+imageRequestCode+".jpeg");
         // Timeout 
         receiveSocket.setSoTimeout(3600);
         // Begin the receiving packets process     
@@ -302,7 +341,7 @@ public class UserApplication {
     private static void dpcmSound(String audioRequestCode, int serverPort, int clientPort, byte[] hostIP, int audioMode)
     throws IOException {
         // Total datagram sound packets that will be received
-        int totalPackets = 500;
+        int totalPackets = 300;
         int mask1 = 15,mask2 = 240;
         int b = 5,rx;
         int nibble1,nibble2;
@@ -312,7 +351,7 @@ public class UserApplication {
         ArrayList<Integer> differences = new ArrayList<Integer>();
         ArrayList<Integer> soundSamples = new ArrayList<Integer>();
         if (audioMode == 1) {
-            audioRequestCode = audioRequestCode + "F" + totalPackets; 
+            audioRequestCode = audioRequestCode + "L01F" + totalPackets; 
         } else if (audioMode == 2) {
             audioRequestCode = audioRequestCode + "T" + totalPackets; 
         }
@@ -367,57 +406,57 @@ public class UserApplication {
                     // Construct audio-song
                     song[counter] = (byte)x1;
                     song[counter + 1] = (byte)x2;
-                    // Update counter
                     counter += 2;
                 }
             } catch (Exception ex) {    
                 System.out.println("[AUDIO]" + ex);
             }
-            // if((i%100)==0){
-            //     System.out.println((totalPackets-i)+" samples left");
-            //   }
             
         }
-        // If song mode is selected, play the received song
-        if(audioMode==1){
-            System.out.println("Playing the song");
-            AudioFormat pcmFormat = new AudioFormat(8000,8,1,true,false);
-            try{
-                SourceDataLine playsong = AudioSystem.getSourceDataLine(pcmFormat);
-                playsong.open(pcmFormat,32000);
-                playsong.start();
-                playsong.write(song,0,256*totalPackets);
-                playsong.stop();
-                playsong.close();
-            } catch (Exception ex) {
-                System.out.println("[AUDIO]" + ex);
-            }
+        // Play the received song
+        System.out.println("Playing the song");
+        AudioFormat pcmFormat = new AudioFormat(8000,8,1,true,false);
+        try{
+            SourceDataLine playsong = AudioSystem.getSourceDataLine(pcmFormat);
+            playsong.open(pcmFormat,32000);
+            playsong.start();
+            playsong.write(song,0,256*totalPackets);
+            playsong.stop();
+            playsong.close();
+        } catch (Exception ex) {
+            System.out.println("[AUDIO]" + ex);
         }
-
+        
         // Close communication sockets
         try{
             sendSocket.close();
         }catch(Exception ex){
-            System.out.println("[IMAGE]Error in closing the Send socket\n" + ex);
+            System.out.println("[AUDIO]Error in closing the Send socket\n" + ex);
         }
         try{
             receiveSocket.close();
         }catch(Exception ex){
-            System.out.println("[IMAGE]Error in closing the Receive socket\n" + ex);
+            System.out.println("[AUDIO]Error in closing the Receive socket\n" + ex);
         }
-
         BufferedWriter bw;
-        // Save difference pairs to a file named DIFFS+audioCode+Mode.txt
+        // Save difference pairs to a file named DIFFS_+audioCode+Mode.txt
         bw = null;
         try {
-            File file = new File("DIFFS"+audioRequestCode+"MODE"+audioMode+".txt");
+            File file = null;
+            if (audioMode == 1) {
+                file = new File(path+"/"+"DPCM_DIFFS_SONG.csv");
+            } else if (audioMode == 2) {
+                file = new File(path+"/"+"DPCM_DIFFS_GENERATOR.csv"); 
+            }
             bw = new BufferedWriter( new FileWriter(file, false));
             if (!file.exists()){
                 file.createNewFile();
             }
+            bw.write("differences");
+            bw.newLine();
             // Write differences to a txt file
-            for(int i = 0 ; i < differences.size() ; i += 2){
-                bw.write("" + differences.get(i) + " " + differences.get(i+1));
+            for(int i = 0 ; i < differences.size() ; i ++){
+                bw.write(differences.get(i).toString());
                 bw.newLine();
             }
         }catch(IOException ioe){
@@ -430,18 +469,24 @@ public class UserApplication {
                 System.out.println("[AUDIO]Error in closing the BufferedWriter" + ex);
             }
         }
-
-         // Save difference pairs to a file named DIFFS+audioCode+Mode.txt
+         // Save received sound to a .txt
          bw = null;
          try {
-             File file = new File("AUDIO"+audioRequestCode+"MODE"+audioMode+".txt");
+            File file = null;
+            if (audioMode == 1) {
+                file = new File(path+"/"+"DPCM_SAMPLES_SONG.csv");
+            } else if (audioMode == 2) {
+                file = new File(path+"/"+"DPCM_SAMPLES_GENERATOR.csv"); 
+            }
              bw = new BufferedWriter( new FileWriter(file, false));
              if (!file.exists()){
                  file.createNewFile();
              }
+            bw.write("samples");
+            bw.newLine();
              // Write differences to a txt file
-             for(int i = 0 ; i < soundSamples.size() ; i += 2){
-                 bw.write("" + soundSamples.get(i) + " " + soundSamples.get(i+1));
+             for(int i = 0 ; i < soundSamples.size() ; i ++){
+                 bw.write(soundSamples.get(i).toString());
                  bw.newLine();
              }
          }catch(IOException ioe){
@@ -454,14 +499,12 @@ public class UserApplication {
                  System.out.println("[AUDIO]Error in closing the BufferedWriter" + ex);
              }
          }
-    
-
     }
 
-    private static void aqdpcmSound(String audioRequestCode, int serverPort, int clientPort, byte[] hostIP, int audioMode)
+    private static void aqdpcmSound(String audioRequestCode, int serverPort, int clientPort, byte[] hostIP, String songCode)
     throws IOException {
         // Total datagram sound packets that will be received
-        int totalPackets = 200;
+        int totalPackets = 300;
         int mask1 = 15,mask2 = 240;
         int mean, b, rx;
         int nibble1,nibble2;
@@ -475,11 +518,8 @@ public class UserApplication {
         ArrayList<Integer> differences = new ArrayList<Integer>();
         ArrayList<Integer> soundSamples = new ArrayList<Integer>();
         
-        if (audioMode == 1) {
-            audioRequestCode = audioRequestCode + "AQF" + totalPackets; 
-        } else if (audioMode == 2) {
-            audioRequestCode = audioRequestCode + "AQT" + totalPackets; 
-        }
+        audioRequestCode = audioRequestCode + songCode + "AQF" + totalPackets;
+        
         // Server's IP address
         final InetAddress hostAddress = InetAddress.getByAddress(hostIP);
         final byte[] txbuffer = audioRequestCode.getBytes();    
@@ -555,11 +595,7 @@ public class UserApplication {
                     x2 = diff1 + diff2 + mean;
                     soundSamples.add(x2);
                     temp = diff1;
-                    // Construct audio-song
-                    song[counter] = (byte)x1;
-                    song[counter + 1] = (byte)x2;
-                    // Update counter
-                    
+                    // Add values and update counter
                     song[counter] = (byte)(x1 & 0x000000FF);
                     song[counter + 1] = (byte)((x1 & 0x0000FF00)>>8);
                     song[counter + 2] = (byte)(x2 & 0x000000FF);
@@ -571,18 +607,132 @@ public class UserApplication {
             }
         }
         // If song mode is selected, play the received song
-        if(audioMode==1){
-            System.out.println("Playing the song");
-            AudioFormat aqpcmFormat = new AudioFormat(8000,16,1,true,false);
+        System.out.println("Playing the song");
+        AudioFormat aqpcmFormat = new AudioFormat(8000,16,1,true,false);
+        try{
+            SourceDataLine playsong = AudioSystem.getSourceDataLine(aqpcmFormat);
+            playsong.open(aqpcmFormat,32000);
+            playsong.start();
+            playsong.write(song,0,256*2*totalPackets);
+            playsong.stop();
+            playsong.close();
+        } catch (Exception ex) {
+            System.out.println("[AUDIO]" + ex);
+        }
+
+        // Close communication sockets
+        try{
+            sendSocket.close();
+        }catch(Exception ex){
+            System.out.println("[AUDIO]Error in closing the Send socket\n" + ex);
+        }
+        try{
+            receiveSocket.close();
+        }catch(Exception ex){
+            System.out.println("[AUDIO]Error in closing the Receive socket\n" + ex);
+        }
+        BufferedWriter bw;
+        // Save difference pairs to a file named DIFFS_+audioCode+Mode.txt
+        bw = null;
+        try {
+            File file = null;
+            file = new File(path+"/"+"AQDPCM_DIFFS_SONG_" + songCode + ".csv");
+            
+            bw = new BufferedWriter( new FileWriter(file, false));
+            if (!file.exists()){
+                file.createNewFile();
+            }
+            bw.write("differences");
+            bw.newLine();
+            // Write differences to a txt file
+            for(int i = 0 ; i < differences.size() ; i ++){
+                bw.write(differences.get(i).toString());
+                bw.newLine();
+            }
+        }catch(IOException ioe){
+            ioe.printStackTrace();
+        }
+        finally{
             try{
-                SourceDataLine playsong = AudioSystem.getSourceDataLine(aqpcmFormat);
-                playsong.open(aqpcmFormat,32000);
-                playsong.start();
-                playsong.write(song,0,256*2*totalPackets);
-                playsong.stop();
-                playsong.close();
-            } catch (Exception ex) {
-                System.out.println("[AUDIO]" + ex);
+                if(bw != null) bw.close();
+            }catch(Exception ex){
+                System.out.println("[AUDIO]Error in closing the BufferedWriter" + ex);
+            }
+        }
+         // Save received sound to a .txt
+         bw = null;
+         try {
+            File file = null;
+            file = new File(path+"/"+"AQDPCM_SAMPLES_SONG_" + songCode + ".csv");
+
+             bw = new BufferedWriter( new FileWriter(file, false));
+             if (!file.exists()){
+                 file.createNewFile();
+             }
+            bw.write("samples");
+            bw.newLine();   
+             // Write differences to a txt file
+             for(int i = 0 ; i < soundSamples.size() ; i ++){
+                 bw.write(soundSamples.get(i).toString());
+                 bw.newLine();
+             }
+         }catch(IOException ioe){
+             ioe.printStackTrace();
+         }
+         finally{
+             try{
+                 if(bw != null) bw.close();
+             }catch(Exception ex){
+                 System.out.println("[AUDIO]Error in closing the BufferedWriter" + ex);
+             }
+         }
+         try {
+            File file = null;
+            file = new File(path+"/"+"AQDPCM_MEANS_SONG_" + songCode + ".csv");
+            
+            bw = new BufferedWriter( new FileWriter(file, false));
+            if (!file.exists()){
+                file.createNewFile();
+            }
+            bw.write("means");
+            bw.newLine();
+            // Write differences to a txt file
+            for(int i = 0 ; i < meanValues.size() ; i ++){
+                bw.write(meanValues.get(i).toString());
+                bw.newLine();
+            }
+        }catch(IOException ioe){
+            ioe.printStackTrace();
+        }
+        finally{
+            try{
+                if(bw != null) bw.close();
+            }catch(Exception ex){
+                System.out.println("[AUDIO]Error in closing the BufferedWriter" + ex);
+            }
+        }
+        try {
+            File file = null;
+            file = new File(path+"/"+"AQDPCM_STEPS_SONG_" + songCode + ".csv");
+            bw = new BufferedWriter( new FileWriter(file, false));
+            if (!file.exists()){
+                file.createNewFile();
+            }
+            bw.write("steps");
+            bw.newLine();
+            // Write differences to a txt file
+            for(int i = 0 ; i < bValues.size() ; i ++){
+                bw.write(bValues.get(i).toString());
+                bw.newLine();
+            }
+        }catch(IOException ioe){
+            ioe.printStackTrace();
+        }
+        finally{
+            try{
+                if(bw != null) bw.close();
+            }catch(Exception ex){
+                System.out.println("[AUDIO]Error in closing the BufferedWriter" + ex);
             }
         }
 
@@ -598,6 +748,13 @@ public class UserApplication {
             System.out.println("[COPTER SLEEP]"+ex);
         }
         String msg = "";
+        ArrayList<String> messages = new ArrayList<String>();
+        final byte[] txbuffer = echoRequestCode.getBytes();
+        // Socket used to send packets to server
+        final InetAddress hostAddress = InetAddress.getByAddress(hostIP);
+        final DatagramSocket sendSocket = new DatagramSocket();
+        final DatagramPacket sendPacket = new DatagramPacket(txbuffer,txbuffer.length,
+        hostAddress,48078);
         // Socket used to receive packets from server
         final DatagramSocket receiveSocket = new DatagramSocket(clientPort);
         // Timeout 
@@ -606,18 +763,213 @@ public class UserApplication {
         byte[] rxbuffer = new byte[2048];
         DatagramPacket receivePacket = new DatagramPacket(rxbuffer,rxbuffer.length);
 
-        for (int i = 0; i < 5; i++){
+        for (int i = 0; i < 50; i++){
             try{
                 receiveSocket.receive(receivePacket);
                 msg = new String(rxbuffer,0,receivePacket.getLength());
+                messages.add(msg);
                 System.out.println(msg);
             }catch(Exception ex){
               System.out.println("[COPTER]" + ex);
             }
         }
+
+        BufferedWriter bw;
+        // Save communication times to a file named "echoRequestCode".txt
+        bw = null;
+        try {
+            File file = new File(path+"/"+"COPTER" + mode + ".csv");
+            bw = new BufferedWriter( new FileWriter(file, false));
+            if (!file.exists()){
+                file.createNewFile();
+            }
+            bw.write("copter");
+            bw.newLine();
+            for(int i=0; i<messages.size(); i++)
+            {
+                bw.write(String.valueOf(messages.get(i)));
+                bw.newLine();
+            }
+            bw.newLine();
+        }catch(IOException ioe){
+            ioe.printStackTrace();
+        }
+        finally{
+            try{
+                if(bw != null) bw.close();
+            }catch(Exception ex){
+                System.out.println("[COPTER]Error in closing the BufferedWriter" + ex);
+            }
+        }
         receiveSocket.close();
+      
         // Kill ithakicopter process
         copter.destroy();
     }
     
+    private static void onBoardDiagnostics(String vehicleRequestCode, int serverPort, int clientPort, byte[] hostIP, String pid) 
+    throws IOException {
+        // Server's response
+        String msg ="";
+	    // Server's IP address
+        final InetAddress hostAddress = InetAddress.getByAddress(hostIP);
+        final byte[] txbuffer;
+        // Socket used to send packets to server
+        final DatagramSocket sendSocket = new DatagramSocket();
+        // final DatagramPacket sendPacket = new DatagramPacket(txbuffer,txbuffer.length,
+        // hostAddress,serverPort);
+        // Socket used to receive packets from server
+        final DatagramSocket receiveSocket = new DatagramSocket(clientPort);
+        // Timeout 
+        receiveSocket.setSoTimeout(3000);
+        // Buffer for server's response
+        byte[] rxbuffer = new byte[5000];
+        DatagramPacket receivePacket = new DatagramPacket(rxbuffer,rxbuffer.length);
+        // Indexes used for while loop termination
+        double start = 0, end = 0, sessionTime = 30*1000;
+        start = System.nanoTime();
+        vehicleRequestCode = vehicleRequestCode + "OBD=01 " + pid;
+        txbuffer = vehicleRequestCode.getBytes();
+        final DatagramPacket sendPacket = new DatagramPacket(txbuffer,txbuffer.length,
+        hostAddress,serverPort);
+        String nibble1, nibble2;
+        int XX = 0, YY = 0;
+        int[] values = new int[25000*2]; 
+        ArrayList<Double> OBDvalues = new ArrayList<>();
+        int counter = 0;
+        while(end < sessionTime)
+        {
+            // Send packet to server
+            try {
+                sendSocket.send(sendPacket);
+            } catch (final Exception x) {
+                System.err.println("[VEHICLE]" + x);
+            }
+            // Receive response packet from server
+            try {
+                receiveSocket.receive(receivePacket);
+                msg = new String(rxbuffer,0,receivePacket.getLength());
+                if (msg.length() == 11) {
+                    nibble1 = msg.substring(6,8);
+                    nibble2 = msg.substring(9,11);
+                    XX = Integer.parseInt(nibble1, 16);
+                    YY = Integer.parseInt(nibble2, 16);
+                } else if(msg.length() == 8) {
+                    nibble1 = msg.substring(6,8);
+                    XX = Integer.parseInt(nibble1, 16);
+                }
+                // Engine runtime
+                if (pid == "1F") {
+                    OBDvalues.add((double) (256 * XX + YY));
+                    System.out.println("Engine runtime: " + OBDvalues.get(counter));
+                }
+                // Intake air temperature
+                else if (pid == "0F") {
+                    OBDvalues.add((double) (XX - 40));
+                    System.out.println("Ithaki air temperature: " + OBDvalues.get(counter));
+                }
+                // Throttle position
+                else if (pid == "11") {
+                    OBDvalues.add((double) (XX * 100 / 255));
+                    System.out.println("Throttle position: " + OBDvalues.get(counter));
+                }
+                // Engine RPM
+                else if (pid == "0C") {
+                    OBDvalues.add((double) (((XX * 256) + YY)/4));
+                    System.out.println("Engine RPM: " + OBDvalues.get(counter));
+                }
+                // Vehicle speed
+                else if (pid == "0D") {
+                    OBDvalues.add((double) (XX));
+                    System.out.println("Vehicle Speed: " + OBDvalues.get(counter));
+                }
+                //Coolant temperature
+                else if (pid == "05") {
+                    OBDvalues.add((double) (XX - 40));
+                    System.out.println("Coolant temperature: " + OBDvalues.get(counter));
+                }
+                counter++;
+            } catch (final Exception x) {
+                System.err.println("[VEHICLE]" + x);
+            }
+            end = (System.nanoTime() - start) / 1000000;
+        }
+        try {
+            sendSocket.close();
+            receiveSocket.close();                
+        } catch (Exception ex) {
+            System.out.println("[VEHICLE] Error closing sockets" + ex);
+        }
+        File file = null;
+        // Engine runtime
+        if (pid == "1F") {
+            file = new File(path + "/" + "engineRuntime.csv");
+        }
+        // Intake air temperature
+        else if (pid == "0F") {
+            file = new File(path + "/" + "airTemperature.csv");
+        }
+        // Throttle position
+        else if (pid == "11") {
+            file = new File(path + "/" + "throttlePosition.csv");
+        }
+        // Engine RPM
+        else if (pid == "0C") {
+            file = new File(path + "/" + "engineRPM.csv");
+        }
+        // Vehicle speed
+        else if (pid == "0D") {
+            file = new File(path + "/" + "vehicleSpeed.csv");
+        }
+        //Coolant temperature
+        else if (pid == "05") {
+            file = new File(path + "/" + "coolantTemperature.csv");
+        }
+        FileOutputStream stream = new FileOutputStream(file);
+        // Write Results to Files //
+        BufferedWriter bw = null;
+        try {
+            bw = new BufferedWriter( new FileWriter(file, false));
+            if (!file.exists()){
+                file.createNewFile();
+            }
+            bw.write(file.toString().replace(path, "").replace("/","").replace(".csv",""));
+            bw.newLine();
+
+            for(int i=0; i<OBDvalues.size(); i++)
+            {
+                bw.write(String.valueOf(OBDvalues.get(i)));
+                bw.newLine();
+            }
+        } catch (IOException x) {
+            System.out.println("[VEHICLE]Failure, writing results of Vehicle Operation.");
+        }finally{
+            try{
+                if(bw != null) bw.close();
+            }catch(Exception ex){
+                System.out.println("[VEHICLE]Error in closing the BufferedWriter" + ex);
+            }
+        }
+
+    }
+
+    // function used to destinguish packets at wireshark tool
+    private static void sendVoid(int serverPort, int clientPort, byte[] hostIP)
+    throws IOException {
+        // Server's IP address
+        final InetAddress hostAddress = InetAddress.getByAddress(hostIP);
+        final byte[] txbuffer = "0".getBytes();
+        // Socket used to send packets to server
+        final DatagramSocket sendSocket = new DatagramSocket();
+        final DatagramPacket sendPacket = new DatagramPacket(txbuffer,txbuffer.length,
+        hostAddress,serverPort);
+        for(int i=0; i<10; i++) {
+            try {
+                sendSocket.send(sendPacket);
+            } catch (final Exception x) {
+                System.err.println("[ECHO]" + x);
+            }
+        }
+    }
+        
 }
