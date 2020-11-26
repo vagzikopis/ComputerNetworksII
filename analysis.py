@@ -3,7 +3,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 
-global echo_code
+global echo_code, path
 
 # Echo Function
 # G1 Delay Response times
@@ -125,7 +125,7 @@ def R1(a=0.7, b=0.5, g=2.7):
 def G9():
     df = pd.read_csv(path+"DPCM_SAMPLES_SONG.csv")
     sns.lineplot(x=df.index, y=df.samples, linewidth = 0.1)
-    plt.title("G9: DPCM 'At cell 33' Waveform")
+    plt.title("G9: DPCM Song 1 Waveform")
     # Set x-axis label
     plt.ylabel('')
     # Set y-axis label
@@ -151,7 +151,7 @@ def G10():
 def G11():
     df = pd.read_csv(path+"DPCM_SAMPLES_SONG.csv")
     sns.displot(df, x=df.samples, bins=15, kde=True)
-    plt.title("G11: DPCM 'At cell 33' Samples Distribution")
+    plt.title("G11: DPCM Song 1 Samples Distribution")
     plt.tight_layout()
     plt.savefig(path+"G11.png")
     plt.show()
@@ -160,7 +160,7 @@ def G11():
 def G12():
     df = pd.read_csv(path+"DPCM_DIFFS_GENERATOR.csv")
     sns.displot(df, x=df.differences, bins=15, kde=True)
-    plt.title("G12: DPCM 'At cell 33' Differences Distribution")
+    plt.title("G12: DPCM Song 1 Differences Distribution")
     plt.tight_layout()
     plt.savefig(path+"G12.png")
     plt.show()
@@ -169,7 +169,7 @@ def G12():
 def G13():
     df = pd.read_csv(path+"AQDPCM_SAMPLES_SONG_L33.csv")
     sns.displot(df, x=df.samples, bins=15, kde=True)
-    plt.title("G13: AQDPCM 'At cell 33' Samples Distribution")
+    plt.title("G13: AQDPCM Song 1 Samples Distribution")
     plt.tight_layout()
     plt.savefig(path+"G13.png")
     plt.show()
@@ -178,7 +178,7 @@ def G13():
 def G14():
     df = pd.read_csv(path+"AQDPCM_DIFFS_SONG_L33.csv")
     sns.displot(df, x=df.differences, bins=15, kde=True)
-    plt.title("G14: AQDPCM 'At cell 33' Differences Distribution")
+    plt.title("G14: AQDPCM Song 1 Differences Distribution")
     plt.tight_layout()
     plt.savefig(path+"G14.png")
     plt.show()
@@ -187,7 +187,7 @@ def G14():
 def G15():
     df = pd.read_csv(path+"AQDPCM_MEANS_SONG_L33.csv")
     sns.lineplot(x=df.index, y=df.means, linewidth = 0.5)
-    plt.title("G15: AQDPCM 'At cell 33' Mean Values")
+    plt.title("G15: AQDPCM Song 1 Mean Values")
     # Set x-axis label
     plt.ylabel('Mean')
     # Set y-axis label
@@ -200,7 +200,7 @@ def G15():
 def G16():
     df = pd.read_csv(path+"AQDPCM_STEPS_SONG_L33.csv")
     sns.lineplot(x=df.index, y=df.steps, linewidth = 0.5)
-    plt.title("G16: AQDPCM 'At cell 33' Step Values")
+    plt.title("G16: AQDPCM Song 1 Step Values")
     # # Set x-axis label
     plt.ylabel('Steps')
     # Set y-axis label
@@ -211,9 +211,9 @@ def G16():
 
 # # G17 AQDPCM Song2 means plot
 def G17():
-    df = pd.read_csv(path+"AQDPCM_MEANS_SONG_L20.csv")
+    df = pd.read_csv(path+"AQDPCM_MEANS_SONG.csv")
     sns.lineplot(x=df.index, y=df.means, linewidth = 0.5)
-    plt.title("G17: AQDPCM 'That's my name' Mean Values")
+    plt.title("G17: AQDPCM Song 2 Mean Values")
     # Set x-axis label
     plt.ylabel('Mean')
     # Set y-axis label
@@ -224,9 +224,9 @@ def G17():
 
 # # G18 AQDPCM Song2 steps plot
 def G18():
-    df = pd.read_csv(path+"AQDPCM_STEPS_SONG_L20.csv")
+    df = pd.read_csv(path+"AQDPCM_STEPS_SONG.csv")
     sns.lineplot(x=df.index, y=df.steps, linewidth = 0.5)
-    plt.title("G18: AQDPCM 'That's my name' Step Values")
+    plt.title("G18: AQDPCM Song 2 Step Values")
     # Set x-axis label
     plt.ylabel('Steps')
     # Set y-axis label
@@ -277,7 +277,6 @@ def OBD():
     df = pd.read_csv(path+'engineRuntime.csv')
     for f in files:
         temp = pd.read_csv(path+f)
-        print(temp.head())
         df = df.join(temp)
 
     colors = plt.rcParams["axes.prop_cycle"]()
@@ -315,17 +314,30 @@ def OBD():
     f.savefig(path+"OBD.png")
     plt.show()
 
+def T():
+    df = pd.read_csv(path+echo_code+"T00TEMPERATURES.csv")
+    df['messages'] = df['messages'].apply(lambda x: x.split("+")[1])
+    df['messages'] = df['messages'].apply(lambda x: x.split("C")[0])
+    df['messages'] = df['messages'].apply(lambda x: x.strip())
+    df['temperatures'] = df['messages'].astype(int)
+    sns.lineplot(x=df.index, y=df['temperatures'])
+    plt.xlabel('Temperatures (Celcius)')
+    plt.xlabel('Packets')
+    plt.show()
 
 if __name__ == "__main__":
     sns.set_style("darkgrid")
-    path = input("Enter session data directory name:")
-    print(path)
-    path = path + "/"
+    path = "session/"
+    
     flag = True
     while flag:
         graph = input("Enter code of the graph to be displayed (G1-20, R1, OBD):")
         print(graph) 
-        if graph == "G1":
+        if graph == "T":
+            echo_code = input("Enter echo request code:")
+            print(echo_code)
+            T()
+        elif graph == "G1":
             echo_code = input("Enter echo request code:")
             print(echo_code)
             G1()
