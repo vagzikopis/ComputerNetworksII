@@ -1,5 +1,4 @@
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -15,107 +14,140 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.Date;
-import java.util.Iterator;
 
-import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.SourceDataLine;
-import javax.sound.sampled.TargetDataLine;
 
 import java.text.SimpleDateFormat;
 
 /*
     @author Zikopis Evangelos
-    ? Computer Networks Assignment, 2020
-    TODO: Packet Communication, Receive Image, Receive Audio, Copter Communication, Vehile Diagnostics
+    ? Computer Networks II Assignment, 2020
+    ? November 2020, Thessaloniki
 */
 public class UserApplication {
-    private static final String echoRequestCode = "E5833";
-    private static final String imageRequestCode = "M7909";
-    private static final String audioRequestCode = "A7732";
-    private static final String copterRequestCode = "Q0191";
-    private static final String vehicleRequestCode = "V5544";
-    private static final int serverPort = 38029;
-    private static final int clientPort = 48029;
+    private static final String echoRequestCode = "E1568";
+    private static final String imageRequestCode = "M6759";
+    private static final String audioRequestCode = "A1143";
+    private static final String copterRequestCode = "Q5701";
+    private static final String vehicleRequestCode = "V4912";
+    private static final int serverPort = 38038;
+    private static final int clientPort = 48038;
     private static final byte[] hostIP = { (byte)155,(byte)207,18,(byte)208 };
     private static final String date = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
     private static final String path = "session-" + date;
 
+    public static final String COLOR_RESET = "\u001B[0m";
+    public static final String BLACK = "\u001B[30m";
+    public static final String RED = "\u001B[31m";
+    public static final String GREEN = "\u001B[32m";
+    public static final String YELLOW = "\u001B[33m";
+    public static final String BLUE = "\u001B[34m";
+    public static final String PURPLE = "\u001B[35m";
+    public static final String CYAN = "\u001B[36m";
+    public static final String WHITE = "\u001B[37m";
+
     public static void main(final String[] args) throws IOException {
        
-        System.out.println("Session " + date + " has started");
+        System.out.println("\t\t\tAUTH Computer Networks II Assignment\t-\tZikopis Evangelos 8808");
+        System.out.println("\t\t\t\t\tSession " + date + " has started");
         File theDir = new File(path);
         if (!theDir.exists()){
             theDir.mkdirs();
         }
-        
-        System.out.println("[ECHO DELAY] "+echoRequestCode);
+
+        System.out.println(GREEN + "[ECHO DELAY] "+echoRequestCode + COLOR_RESET);
         echoPackages(clientPort, serverPort, echoRequestCode, hostIP, 1);
         sendVoid(serverPort, clientPort, hostIP);
-        System.out.println("[ECHO NON-DELAY] "+echoRequestCode);
+        System.out.println(GREEN + "[ECHO NON-DELAY] "+echoRequestCode + COLOR_RESET);
         echoPackages(clientPort, serverPort, echoRequestCode, hostIP, 2);
         sendVoid(serverPort, clientPort, hostIP);
-        // System.out.println("[ECHO TEMPERATURES] "+echoRequestCode);
-        // echoPackages(clientPort, serverPort, echoRequestCode, hostIP, 3);
+        System.out.println(GREEN + "[ECHO TEMPERATURES]"+echoRequestCode + COLOR_RESET);
+        echoPackages(clientPort, serverPort, echoRequestCode, hostIP, 3);
+        sendVoid(serverPort, clientPort, hostIP);
 
-        // System.out.println("[IMAGE MODE 1] "+imageRequestCode);
-        // imageCapture(imageRequestCode, clientPort, serverPort, hostIP, 1);
-        // System.out.println("[IMAGE MODE 2] "+imageRequestCode);
-        // imageCapture(imageRequestCode, clientPort, serverPort, hostIP, 2);
 
-        // System.out.println("[DPCM] "+audioRequestCode);
-        // dpcmSound(audioRequestCode, serverPort, clientPort, hostIP, 1);
-        // System.out.println("[DPCM] "+audioRequestCode);
-        // dpcmSound(audioRequestCode, serverPort, clientPort, hostIP, 2);
+        System.out.println(YELLOW + "[IMAGE MODE 1] "+imageRequestCode + COLOR_RESET);
+        imageCapture(imageRequestCode, clientPort, serverPort, hostIP, 1);
+        sendVoid(serverPort, clientPort, hostIP);
+        System.out.println(YELLOW + "[IMAGE MODE 2] "+imageRequestCode + COLOR_RESET);
+        imageCapture(imageRequestCode, clientPort, serverPort, hostIP, 2);
+        sendVoid(serverPort, clientPort, hostIP);
+
+        System.out.println(CYAN + "[DPCM] "+audioRequestCode + COLOR_RESET);
+        dpcmSound(audioRequestCode, serverPort, clientPort, hostIP, 1, "L33");
+        sendVoid(serverPort, clientPort, hostIP);
+        System.out.println(CYAN + "[DPCM] "+audioRequestCode);
+        dpcmSound(audioRequestCode, serverPort, clientPort, hostIP, 2,"");
+        sendVoid(serverPort, clientPort, hostIP);
        
-        // System.out.println("[AQDPCM] "+audioRequestCode);
-        // // aqdpcmSound(audioRequestCode, serverPort, clientPort, hostIP, "L01");
-        // System.out.println("[AQDPCM] "+audioRequestCode);
-        // aqdpcmSound(audioRequestCode, serverPort, clientPort, hostIP, "L03");
+        System.out.println(CYAN + "[AQDPCM] "+audioRequestCode + COLOR_RESET);
+        aqdpcmSound(audioRequestCode, serverPort, clientPort, hostIP, "L33");
+        sendVoid(serverPort, clientPort, hostIP);
+        System.out.println(CYAN + "[AQDPCM] "+audioRequestCode + COLOR_RESET);
+        aqdpcmSound(audioRequestCode, serverPort, clientPort, hostIP, "L20");
+        sendVoid(serverPort, clientPort, hostIP);
         
-        // System.out.println("[ITHAKICOPTER]");
-        // ithakiCopter(copterRequestCode, 48078, hostIP, 1);
-        // System.out.println("[ITHAKICOPTER]");
-        // ithakiCopter(copterRequestCode, 48078, hostIP, 2);
+        System.out.println(PURPLE + "[ITHAKICOPTER]" + COLOR_RESET);
+        ithakiCopter(copterRequestCode, 48078, hostIP, 1);
+        sendVoid(serverPort, clientPort, hostIP);
+        System.out.println(PURPLE + "[ITHAKICOPTER]" + COLOR_RESET);
+        ithakiCopter(copterRequestCode, 48078, hostIP, 2);
+        sendVoid(serverPort, clientPort, hostIP);
         
-        // String pid;
-        // System.out.println("[DIAGNOSTICS] Engine Run time");
-        // pid = "1F";
-        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
-        // System.out.println("[DIAGNOSTICS] Ithaki air temperature");
-        // pid = "0F";
-        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
-        // System.out.println("[DIAGNOSTICS] Throttle position");
-        // pid = "11";
-        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
-        // System.out.println("[DIAGNOSTICS] Engine RPM");
-        // pid = "0C";
-        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
-        // System.out.println("[DIAGNOSTICS] Vehicle speed");
-        // pid = "0D";
-        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
-        // System.out.println("[DIAGNOSTICS] Coolant Temperature");
-        // pid = "05";
-        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+        String pid;
+        System.out.println(RED + "[DIAGNOSTICS] Engine Run time" + COLOR_RESET);
+        pid = "1F";
+        onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+        sendVoid(serverPort, clientPort, hostIP);
+        System.out.println(RED + "[DIAGNOSTICS] Ithaki air temperature" + COLOR_RESET);
+        pid = "0F";
+        onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+        sendVoid(serverPort, clientPort, hostIP);
+        System.out.println(RED + "[DIAGNOSTICS] Throttle position" + COLOR_RESET);
+        pid = "11";
+        onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+        sendVoid(serverPort, clientPort, hostIP);
+        System.out.println(RED + "[DIAGNOSTICS] Engine RPM" + COLOR_RESET);
+        pid = "0C";
+        onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+        sendVoid(serverPort, clientPort, hostIP);
+        System.out.println(RED + "[DIAGNOSTICS] Vehicle speed" + COLOR_RESET);
+        pid = "0D";
+        onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+        sendVoid(serverPort, clientPort, hostIP);
+        System.out.println(RED + "[DIAGNOSTICS] Coolant Temperature" + COLOR_RESET);
+        pid = "05";
+        onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
     }
 
+
+    /* 
+    ? This function begins communication with the server and receives echo messages.
+    * Mode 1: Delay mode. Server sends packets with delay
+    * Mode 2: Non-Delay mode. Server sends packets without delay
+    * Mode 2: Delay mode. Server sends packets with delay and temperature values
+    */
     private static void echoPackages(final int clientPort, final int serverPort, String echoRequestCode, byte[] hostIP, int echoMode)
     throws IOException {
+        double sessionTime;
         // Check mode
         if (echoMode == 1) {
             // Delay Mode
             System.out.println("Echo Delay Mode "+echoRequestCode);
             echoRequestCode = echoRequestCode;
+            sessionTime = 4*60*1000;
         } else if (echoMode == 2) {
             // Non Delay Mode
             System.out.println("Echo non-Delay Mode");
             echoRequestCode = "E0000";
+            sessionTime = 4*60*1000;
         } else {
             // Temperature Mode
             System.out.println("Temperature Delay Mode");
             echoRequestCode = echoRequestCode+"T00";
+            sessionTime = 1*60*1000;
         }
         // Server's response
         String msg ="";
@@ -129,15 +161,16 @@ public class UserApplication {
         // Socket used to receive packets from server
         final DatagramSocket receiveSocket = new DatagramSocket(clientPort);
         // Timeout 
-        receiveSocket.setSoTimeout(3000);
+        receiveSocket.setSoTimeout(4000);
         // Buffer for server's response
         byte[] rxbuffer = new byte[2048];
         DatagramPacket receivePacket = new DatagramPacket(rxbuffer,rxbuffer.length);
         // Indexes used for while loop termination
-        double start = 0, end = 0, sessionTime = 2*60*1000;
+        double start = 0, end = 0;
         // Indexes used to messure communication time
         double sendTime = 0, recTime = 0;
         ArrayList<Double> receiveTimes = new ArrayList<Double>();
+        ArrayList<String> messages = new ArrayList<String>();
         // Packet counter
         int packetCounter = 0;
         // Initialize start index
@@ -159,6 +192,7 @@ public class UserApplication {
                 msg = new String(rxbuffer,0,receivePacket.getLength());
                 System.out.println(msg);
                 System.out.println("Communication time: " + recTime + " ms");
+                messages.add(msg);
             } catch (final Exception x) {
                 System.err.println("[ECHO]" + x);
             }
@@ -186,6 +220,7 @@ public class UserApplication {
                     file.createNewFile();
                 }
                 bw.write("ResponseTimes");
+                bw.newLine();
                 for(int i=0; i<receiveTimes.size(); i++)
                 {
                     bw.write(String.valueOf(receiveTimes.get(i)));
@@ -202,6 +237,33 @@ public class UserApplication {
                     System.out.println("[ECHO]Error in closing the BufferedWriter" + ex);
                 }
             }
+        } else {
+            bw = null;
+            try {
+                File file = new File(path+"/"+echoRequestCode+"TEMPERATURES.csv");
+                bw = new BufferedWriter( new FileWriter(file, false));
+                if (!file.exists()){
+                    file.createNewFile();
+                }
+                bw.write("messages");
+                bw.newLine();
+                for(int i=0; i<messages.size(); i++)
+                {
+                    bw.write(messages.get(i));
+                    bw.newLine();
+                }
+                bw.newLine();
+            }catch(IOException ioe){
+                ioe.printStackTrace();
+            }
+            finally{
+                try{
+                    if(bw != null) bw.close();
+                }catch(Exception ex){
+                    System.out.println("[ECHO]Error in closing the BufferedWriter" + ex);
+                }
+            }
+
         }
         // Throughput Calculation 
         double timeSum=0;
@@ -240,6 +302,7 @@ public class UserApplication {
                     file.createNewFile();
                 }
                 bw.write("R");
+                bw.newLine();
                 for(int i=0; i<R.size(); i++)
                 {
                     bw.write(String.valueOf(R.get(i)));
@@ -273,6 +336,11 @@ public class UserApplication {
         
     }
 
+    /* 
+    ? This function downloads an image sent from professor's live cameras
+    * Mode 1: CAM=FIX
+    * Mode 2: CAM=PTZ
+    */
     private static void imageCapture(String imageRequestCode, int clientPort, int serverPort, byte[] hostIP, int imageMode)
     throws IOException {
         // Image mode selection
@@ -299,7 +367,7 @@ public class UserApplication {
         sendSocket.send(sendPacket);
         FileOutputStream imageFile = new FileOutputStream(path+"/"+imageRequestCode+".jpeg");
         // Timeout 
-        receiveSocket.setSoTimeout(3600);
+        receiveSocket.setSoTimeout(5000);
         // Begin the receiving packets process     
         System.out.println("... Downloading Image ...");
         for(;;) {
@@ -338,10 +406,16 @@ public class UserApplication {
         
     }
 
-    private static void dpcmSound(String audioRequestCode, int serverPort, int clientPort, byte[] hostIP, int audioMode)
+     /* 
+    ? This function receives DPCM compressed sound packets. Packets are de-compressed
+    ? and the sound clip is played.
+    * MODE 1: Server sends a song
+    * MODE 2: Server sends a sound clip from a high-frequency generator
+    */
+    private static void dpcmSound(String audioRequestCode, int serverPort, int clientPort, byte[] hostIP, int audioMode, String songCode)
     throws IOException {
         // Total datagram sound packets that will be received
-        int totalPackets = 300;
+        int totalPackets = 400;
         int mask1 = 15,mask2 = 240;
         int b = 5,rx;
         int nibble1,nibble2;
@@ -351,7 +425,7 @@ public class UserApplication {
         ArrayList<Integer> differences = new ArrayList<Integer>();
         ArrayList<Integer> soundSamples = new ArrayList<Integer>();
         if (audioMode == 1) {
-            audioRequestCode = audioRequestCode + "L01F" + totalPackets; 
+            audioRequestCode = audioRequestCode + songCode + "F" + totalPackets; 
         } else if (audioMode == 2) {
             audioRequestCode = audioRequestCode + "T" + totalPackets; 
         }
@@ -439,7 +513,7 @@ public class UserApplication {
             System.out.println("[AUDIO]Error in closing the Receive socket\n" + ex);
         }
         BufferedWriter bw;
-        // Save difference pairs to a file named DIFFS_+audioCode+Mode.txt
+        // Save difference 
         bw = null;
         try {
             File file = null;
@@ -469,7 +543,7 @@ public class UserApplication {
                 System.out.println("[AUDIO]Error in closing the BufferedWriter" + ex);
             }
         }
-         // Save received sound to a .txt
+         // Save received sound to a .csv
          bw = null;
          try {
             File file = null;
@@ -501,10 +575,14 @@ public class UserApplication {
          }
     }
 
+    /* 
+    ? This function receives AQDPCM compressed sound packets. Packets are de-compressed
+    ? and the sound clip is played.
+    */
     private static void aqdpcmSound(String audioRequestCode, int serverPort, int clientPort, byte[] hostIP, String songCode)
     throws IOException {
         // Total datagram sound packets that will be received
-        int totalPackets = 300;
+        int totalPackets = 600;
         int mask1 = 15,mask2 = 240;
         int mean, b, rx;
         int nibble1,nibble2;
@@ -632,7 +710,7 @@ public class UserApplication {
             System.out.println("[AUDIO]Error in closing the Receive socket\n" + ex);
         }
         BufferedWriter bw;
-        // Save difference pairs to a file named DIFFS_+audioCode+Mode.txt
+        // Save difference pairs 
         bw = null;
         try {
             File file = null;
@@ -659,7 +737,7 @@ public class UserApplication {
                 System.out.println("[AUDIO]Error in closing the BufferedWriter" + ex);
             }
         }
-         // Save received sound to a .txt
+         // Save received sound to a .csv
          bw = null;
          try {
             File file = null;
@@ -671,7 +749,7 @@ public class UserApplication {
              }
             bw.write("samples");
             bw.newLine();   
-             // Write differences to a txt file
+             // Write differences to a csv file
              for(int i = 0 ; i < soundSamples.size() ; i ++){
                  bw.write(soundSamples.get(i).toString());
                  bw.newLine();
@@ -696,7 +774,7 @@ public class UserApplication {
             }
             bw.write("means");
             bw.newLine();
-            // Write differences to a txt file
+            // Write differences to a csv file
             for(int i = 0 ; i < meanValues.size() ; i ++){
                 bw.write(meanValues.get(i).toString());
                 bw.newLine();
@@ -720,7 +798,7 @@ public class UserApplication {
             }
             bw.write("steps");
             bw.newLine();
-            // Write differences to a txt file
+            // Write differences to a csv file
             for(int i = 0 ; i < bValues.size() ; i ++){
                 bw.write(bValues.get(i).toString());
                 bw.newLine();
@@ -738,6 +816,10 @@ public class UserApplication {
 
     }
 
+    /* 
+    ? This function begins the ithakicopter.jar process and receives 
+    ? packets containing copter information
+    */
     private static void ithakiCopter(String copterRequestCode, int clientPort, byte[] hostIP, int mode)
     throws IOException {
         // Execute ithakicopter.jar
@@ -762,8 +844,8 @@ public class UserApplication {
         // Buffer for server's response
         byte[] rxbuffer = new byte[2048];
         DatagramPacket receivePacket = new DatagramPacket(rxbuffer,rxbuffer.length);
-
-        for (int i = 0; i < 50; i++){
+        // Receive 50 messages
+        for (int i = 0; i < 100; i++){
             try{
                 receiveSocket.receive(receivePacket);
                 msg = new String(rxbuffer,0,receivePacket.getLength());
@@ -775,7 +857,7 @@ public class UserApplication {
         }
 
         BufferedWriter bw;
-        // Save communication times to a file named "echoRequestCode".txt
+        // Save communication times to a file named copter.txt
         bw = null;
         try {
             File file = new File(path+"/"+"COPTER" + mode + ".csv");
@@ -807,6 +889,15 @@ public class UserApplication {
         copter.destroy();
     }
     
+    /* 
+    ? This function receives packets containing vehicle diagnostics from the server.
+    * PID 1F: Engine run time info
+    * PID 0F: Ithake air temperature
+    * PID 11: Throttle position info
+    * PID 0C: Engine RPM
+    * PID 0D: Vehicle speed
+    * PID 05: Coolant temperature
+    */
     private static void onBoardDiagnostics(String vehicleRequestCode, int serverPort, int clientPort, byte[] hostIP, String pid) 
     throws IOException {
         // Server's response
@@ -826,7 +917,7 @@ public class UserApplication {
         byte[] rxbuffer = new byte[5000];
         DatagramPacket receivePacket = new DatagramPacket(rxbuffer,rxbuffer.length);
         // Indexes used for while loop termination
-        double start = 0, end = 0, sessionTime = 30*1000;
+        double start = 0, end = 0, sessionTime = 4*60*1000;
         start = System.nanoTime();
         vehicleRequestCode = vehicleRequestCode + "OBD=01 " + pid;
         txbuffer = vehicleRequestCode.getBytes();
@@ -953,7 +1044,10 @@ public class UserApplication {
 
     }
 
-    // function used to destinguish packets at wireshark tool
+    /*
+    ? This function sends empty packets to the server.
+    ? This process is performed in order to facilitate the observation of the packets at wireshark tool
+    */
     private static void sendVoid(int serverPort, int clientPort, byte[] hostIP)
     throws IOException {
         // Server's IP address
