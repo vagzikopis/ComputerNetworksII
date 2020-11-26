@@ -27,16 +27,16 @@ import java.text.SimpleDateFormat;
     ? November 2020, Thessaloniki
 */
 public class UserApplication {
-    private static final String echoRequestCode = "E1568";
-    private static final String imageRequestCode = "M6759";
-    private static final String audioRequestCode = "A1143";
-    private static final String copterRequestCode = "Q5701";
-    private static final String vehicleRequestCode = "V4912";
-    private static final int serverPort = 38038;
-    private static final int clientPort = 48038;
+    private static final String echoRequestCode = "E4460";
+    private static final String imageRequestCode = "M2472";
+    private static final String audioRequestCode = "A4975";
+    private static final String copterRequestCode = "Q2618";
+    private static final String vehicleRequestCode = "V3688";
+    private static final int serverPort = 38032;
+    private static final int clientPort = 48032;
     private static final byte[] hostIP = { (byte)155,(byte)207,18,(byte)208 };
     private static final String date = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
-    private static final String path = "session-" + date;
+    private static final String path = "session";
 
     public static final String COLOR_RESET = "\u001B[0m";
     public static final String BLACK = "\u001B[30m";
@@ -49,23 +49,24 @@ public class UserApplication {
     public static final String WHITE = "\u001B[37m";
 
     public static void main(final String[] args) throws IOException {
-       
+        System.out.println();
         System.out.println("\t\t\tAUTH Computer Networks II Assignment\t-\tZikopis Evangelos 8808");
+        System.out.println();
         System.out.println("\t\t\t\t\tSession " + date + " has started");
         File theDir = new File(path);
         if (!theDir.exists()){
             theDir.mkdirs();
         }
 
-        System.out.println(GREEN + "[ECHO DELAY] "+echoRequestCode + COLOR_RESET);
-        echoPackages(clientPort, serverPort, echoRequestCode, hostIP, 1);
-        sendVoid(serverPort, clientPort, hostIP);
-        System.out.println(GREEN + "[ECHO NON-DELAY] "+echoRequestCode + COLOR_RESET);
-        echoPackages(clientPort, serverPort, echoRequestCode, hostIP, 2);
-        sendVoid(serverPort, clientPort, hostIP);
-        System.out.println(GREEN + "[ECHO TEMPERATURES]"+echoRequestCode + COLOR_RESET);
-        echoPackages(clientPort, serverPort, echoRequestCode, hostIP, 3);
-        sendVoid(serverPort, clientPort, hostIP);
+        // System.out.println(GREEN + "[ECHO DELAY] "+echoRequestCode + COLOR_RESET);
+        // echoPackages(clientPort, serverPort, echoRequestCode, hostIP, 1);
+        // sendVoid(serverPort, clientPort, hostIP);
+        // System.out.println(GREEN + "[ECHO NON-DELAY] "+echoRequestCode + COLOR_RESET);
+        // echoPackages(clientPort, serverPort, echoRequestCode, hostIP, 2);
+        // sendVoid(serverPort, clientPort, hostIP);
+        // System.out.println(GREEN + "[ECHO TEMPERATURES]"+echoRequestCode + COLOR_RESET);
+        // echoPackages(clientPort, serverPort, echoRequestCode, hostIP, 3);
+        // sendVoid(serverPort, clientPort, hostIP);
 
 
         System.out.println(YELLOW + "[IMAGE MODE 1] "+imageRequestCode + COLOR_RESET);
@@ -75,51 +76,51 @@ public class UserApplication {
         imageCapture(imageRequestCode, clientPort, serverPort, hostIP, 2);
         sendVoid(serverPort, clientPort, hostIP);
 
-        System.out.println(CYAN + "[DPCM] "+audioRequestCode + COLOR_RESET);
-        dpcmSound(audioRequestCode, serverPort, clientPort, hostIP, 1, "L33");
-        sendVoid(serverPort, clientPort, hostIP);
-        System.out.println(CYAN + "[DPCM] "+audioRequestCode);
-        dpcmSound(audioRequestCode, serverPort, clientPort, hostIP, 2,"");
-        sendVoid(serverPort, clientPort, hostIP);
+        // System.out.println(CYAN + "[DPCM] "+audioRequestCode + COLOR_RESET);
+        // dpcmSound(audioRequestCode, serverPort, clientPort, hostIP, 1, "L33");
+        // sendVoid(serverPort, clientPort, hostIP);
+        // System.out.println(CYAN + "[DPCM] "+audioRequestCode + COLOR_RESET);
+        // dpcmSound(audioRequestCode, serverPort, clientPort, hostIP, 2,"");
+        // sendVoid(serverPort, clientPort, hostIP);
        
-        System.out.println(CYAN + "[AQDPCM] "+audioRequestCode + COLOR_RESET);
-        aqdpcmSound(audioRequestCode, serverPort, clientPort, hostIP, "L33");
-        sendVoid(serverPort, clientPort, hostIP);
-        System.out.println(CYAN + "[AQDPCM] "+audioRequestCode + COLOR_RESET);
-        aqdpcmSound(audioRequestCode, serverPort, clientPort, hostIP, "L20");
-        sendVoid(serverPort, clientPort, hostIP);
+        // System.out.println(CYAN + "[AQDPCM] "+audioRequestCode + COLOR_RESET);
+        // aqdpcmSound(audioRequestCode, serverPort, clientPort, hostIP, "L33");
+        // sendVoid(serverPort, clientPort, hostIP);
+        // System.out.println(CYAN + "[AQDPCM] "+audioRequestCode + COLOR_RESET);
+        // aqdpcmSound(audioRequestCode, serverPort, clientPort, hostIP, "L20");
+        // sendVoid(serverPort, clientPort, hostIP);
         
-        System.out.println(PURPLE + "[ITHAKICOPTER]" + COLOR_RESET);
-        ithakiCopter(copterRequestCode, 48078, hostIP, 1);
-        sendVoid(serverPort, clientPort, hostIP);
-        System.out.println(PURPLE + "[ITHAKICOPTER]" + COLOR_RESET);
-        ithakiCopter(copterRequestCode, 48078, hostIP, 2);
-        sendVoid(serverPort, clientPort, hostIP);
+        // System.out.println(PURPLE + "[ITHAKICOPTER]" + COLOR_RESET);
+        // ithakiCopter(copterRequestCode, 48078, hostIP, 1);
+        // sendVoid(serverPort, clientPort, hostIP);
+        // System.out.println(PURPLE + "[ITHAKICOPTER]" + COLOR_RESET);
+        // ithakiCopter(copterRequestCode, 48078, hostIP, 2);
+        // sendVoid(serverPort, clientPort, hostIP);
         
-        String pid;
-        System.out.println(RED + "[DIAGNOSTICS] Engine Run time" + COLOR_RESET);
-        pid = "1F";
-        onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
-        sendVoid(serverPort, clientPort, hostIP);
-        System.out.println(RED + "[DIAGNOSTICS] Ithaki air temperature" + COLOR_RESET);
-        pid = "0F";
-        onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
-        sendVoid(serverPort, clientPort, hostIP);
-        System.out.println(RED + "[DIAGNOSTICS] Throttle position" + COLOR_RESET);
-        pid = "11";
-        onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
-        sendVoid(serverPort, clientPort, hostIP);
-        System.out.println(RED + "[DIAGNOSTICS] Engine RPM" + COLOR_RESET);
-        pid = "0C";
-        onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
-        sendVoid(serverPort, clientPort, hostIP);
-        System.out.println(RED + "[DIAGNOSTICS] Vehicle speed" + COLOR_RESET);
-        pid = "0D";
-        onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
-        sendVoid(serverPort, clientPort, hostIP);
-        System.out.println(RED + "[DIAGNOSTICS] Coolant Temperature" + COLOR_RESET);
-        pid = "05";
-        onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+        // String pid;
+        // System.out.println(RED + "[DIAGNOSTICS] Engine Run time" + COLOR_RESET);
+        // pid = "1F";
+        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+        // sendVoid(serverPort, clientPort, hostIP);
+        // System.out.println(RED + "[DIAGNOSTICS] Ithaki air temperature" + COLOR_RESET);
+        // pid = "0F";
+        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+        // sendVoid(serverPort, clientPort, hostIP);
+        // System.out.println(RED + "[DIAGNOSTICS] Throttle position" + COLOR_RESET);
+        // pid = "11";
+        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+        // sendVoid(serverPort, clientPort, hostIP);
+        // System.out.println(RED + "[DIAGNOSTICS] Engine RPM" + COLOR_RESET);
+        // pid = "0C";
+        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+        // sendVoid(serverPort, clientPort, hostIP);
+        // System.out.println(RED + "[DIAGNOSTICS] Vehicle speed" + COLOR_RESET);
+        // pid = "0D";
+        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+        // sendVoid(serverPort, clientPort, hostIP);
+        // System.out.println(RED + "[DIAGNOSTICS] Coolant Temperature" + COLOR_RESET);
+        // pid = "05";
+        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
     }
 
 
@@ -135,19 +136,16 @@ public class UserApplication {
         // Check mode
         if (echoMode == 1) {
             // Delay Mode
-            System.out.println("Echo Delay Mode "+echoRequestCode);
             echoRequestCode = echoRequestCode;
-            sessionTime = 4*60*1000;
+            sessionTime = 1*60*1000;
         } else if (echoMode == 2) {
             // Non Delay Mode
-            System.out.println("Echo non-Delay Mode");
             echoRequestCode = "E0000";
-            sessionTime = 4*60*1000;
+            sessionTime = 1*60*1000;
         } else {
             // Temperature Mode
-            System.out.println("Temperature Delay Mode");
             echoRequestCode = echoRequestCode+"T00";
-            sessionTime = 1*60*1000;
+            sessionTime = 30*1000;
         }
         // Server's response
         String msg ="";
@@ -844,8 +842,8 @@ public class UserApplication {
         // Buffer for server's response
         byte[] rxbuffer = new byte[2048];
         DatagramPacket receivePacket = new DatagramPacket(rxbuffer,rxbuffer.length);
-        // Receive 50 messages
-        for (int i = 0; i < 100; i++){
+        // Receive 30 messages
+        for (int i = 0; i < 30; i++){
             try{
                 receiveSocket.receive(receivePacket);
                 msg = new String(rxbuffer,0,receivePacket.getLength());
@@ -917,7 +915,7 @@ public class UserApplication {
         byte[] rxbuffer = new byte[5000];
         DatagramPacket receivePacket = new DatagramPacket(rxbuffer,rxbuffer.length);
         // Indexes used for while loop termination
-        double start = 0, end = 0, sessionTime = 4*60*1000;
+        double start = 0, end = 0, sessionTime = 30*1000;
         start = System.nanoTime();
         vehicleRequestCode = vehicleRequestCode + "OBD=01 " + pid;
         txbuffer = vehicleRequestCode.getBytes();
