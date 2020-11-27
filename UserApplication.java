@@ -22,7 +22,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.SourceDataLine;
 
 import java.text.SimpleDateFormat;
-import java.util.Scanner;
 
 /*
     @author Zikopis Evangelos
@@ -67,11 +66,10 @@ public class UserApplication {
         System.out.println("ENTER CLIENT PORT: ");
         String input = reader.readLine();  
         clientPort = Integer.parseInt(input);
-        clientPort = 48030;
+
         System.out.println("ENTER SERVER PORT: ");
         input = reader.readLine(); 
         serverPort = Integer.parseInt(input);
-        serverPort = 38030;
 
         while(flag) {
             System.out.println();
