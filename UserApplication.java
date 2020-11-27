@@ -1,8 +1,10 @@
 import java.io.BufferedWriter;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader; 
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -20,6 +22,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.SourceDataLine;
 
 import java.text.SimpleDateFormat;
+import java.util.Scanner;
 
 /*
     @author Zikopis Evangelos
@@ -27,13 +30,13 @@ import java.text.SimpleDateFormat;
     ? November 2020, Thessaloniki
 */
 public class UserApplication {
-    private static final String echoRequestCode = "E4460";
-    private static final String imageRequestCode = "M2472";
-    private static final String audioRequestCode = "A4975";
-    private static final String copterRequestCode = "Q2618";
-    private static final String vehicleRequestCode = "V3688";
-    private static final int serverPort = 38032;
-    private static final int clientPort = 48032;
+    private static String echoRequestCode;
+    private static String imageRequestCode;
+    private static String audioRequestCode;
+    private static String copterRequestCode;
+    private static String vehicleRequestCode;
+    private static int serverPort;
+    private static int clientPort;
     private static final byte[] hostIP = { (byte)155,(byte)207,18,(byte)208 };
     private static final String date = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
     private static final String path = "session";
@@ -57,70 +60,133 @@ public class UserApplication {
         if (!theDir.exists()){
             theDir.mkdirs();
         }
+        boolean flag = true;
 
-        // System.out.println(GREEN + "[ECHO DELAY] "+echoRequestCode + COLOR_RESET);
-        // echoPackages(clientPort, serverPort, echoRequestCode, hostIP, 1);
-        // sendVoid(serverPort, clientPort, hostIP);
-        // System.out.println(GREEN + "[ECHO NON-DELAY] "+echoRequestCode + COLOR_RESET);
-        // echoPackages(clientPort, serverPort, echoRequestCode, hostIP, 2);
-        // sendVoid(serverPort, clientPort, hostIP);
-        // System.out.println(GREEN + "[ECHO TEMPERATURES]"+echoRequestCode + COLOR_RESET);
-        // echoPackages(clientPort, serverPort, echoRequestCode, hostIP, 3);
-        // sendVoid(serverPort, clientPort, hostIP);
+        // reader used to read user's input
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        System.out.println("ENTER CLIENT PORT: ");
+        String input = reader.readLine();  
+        clientPort = Integer.parseInt(input);
+        clientPort = 48030;
+        System.out.println("ENTER SERVER PORT: ");
+        input = reader.readLine(); 
+        serverPort = Integer.parseInt(input);
+        serverPort = 38030;
 
+        while(flag) {
+            System.out.println();
+            System.out.println("\t\t\t\t\tFOR ECHO MODE TYPE 'E'\n");
+            System.out.println("\t\t\t\t\tFOR AUDIO MODE TYPE 'A'\n");
+            System.out.println("\t\t\t\t\tFOR IMAGE MODE TYPE 'M'\n");
+            System.out.println("\t\t\t\t\tFOR COPTER MODE TYPE 'Q'\n");
+            System.out.println("\t\t\t\t\tFOR VEHICLE MODE TYPE 'V'\n");
+            
+            System.out.println("Enter Mode Code: ");
+            input = reader.readLine();  // Read user input
 
-        System.out.println(YELLOW + "[IMAGE MODE 1] "+imageRequestCode + COLOR_RESET);
-        imageCapture(imageRequestCode, clientPort, serverPort, hostIP, 1);
-        sendVoid(serverPort, clientPort, hostIP);
-        System.out.println(YELLOW + "[IMAGE MODE 2] "+imageRequestCode + COLOR_RESET);
-        imageCapture(imageRequestCode, clientPort, serverPort, hostIP, 2);
-        sendVoid(serverPort, clientPort, hostIP);
+            if (input.equals("E") || input.equals("e")) {
+                
+                System.out.println("ENTER ECHO CODE");
+                input = reader.readLine();  
+                echoRequestCode = input;
+                
+                System.out.println(GREEN + "[ECHO DELAY] "+echoRequestCode + COLOR_RESET);
+                echoPackages(clientPort, serverPort, echoRequestCode, hostIP, 1);
+                sendVoid(serverPort, clientPort, hostIP);
+                System.out.println(GREEN + "[ECHO NON-DELAY] "+echoRequestCode + COLOR_RESET);
+                echoPackages(clientPort, serverPort, echoRequestCode, hostIP, 2);
+                sendVoid(serverPort, clientPort, hostIP);
+                System.out.println(GREEN + "[ECHO TEMPERATURES]"+echoRequestCode + COLOR_RESET);
+                echoPackages(clientPort, serverPort, echoRequestCode, hostIP, 3);
+                sendVoid(serverPort, clientPort, hostIP);
 
-        // System.out.println(CYAN + "[DPCM] "+audioRequestCode + COLOR_RESET);
-        // dpcmSound(audioRequestCode, serverPort, clientPort, hostIP, 1, "L33");
-        // sendVoid(serverPort, clientPort, hostIP);
-        // System.out.println(CYAN + "[DPCM] "+audioRequestCode + COLOR_RESET);
-        // dpcmSound(audioRequestCode, serverPort, clientPort, hostIP, 2,"");
-        // sendVoid(serverPort, clientPort, hostIP);
-       
-        // System.out.println(CYAN + "[AQDPCM] "+audioRequestCode + COLOR_RESET);
-        // aqdpcmSound(audioRequestCode, serverPort, clientPort, hostIP, "L33");
-        // sendVoid(serverPort, clientPort, hostIP);
-        // System.out.println(CYAN + "[AQDPCM] "+audioRequestCode + COLOR_RESET);
-        // aqdpcmSound(audioRequestCode, serverPort, clientPort, hostIP, "L20");
-        // sendVoid(serverPort, clientPort, hostIP);
+            } else if (input.equals("A") || input.equals("a")) {
+
+                System.out.println("ENTER AUDIO CODE");
+                input = reader.readLine();  
+                audioRequestCode = input;
+
+                System.out.println(CYAN + "[DPCM] "+audioRequestCode + COLOR_RESET);
+                dpcmSound(audioRequestCode, serverPort, clientPort, hostIP, 1, "L33");
+                sendVoid(serverPort, clientPort, hostIP);
+                System.out.println(CYAN + "[DPCM] "+audioRequestCode + COLOR_RESET);
+                dpcmSound(audioRequestCode, serverPort, clientPort, hostIP, 2,"");
+                sendVoid(serverPort, clientPort, hostIP);
+
+                System.out.println(CYAN + "[AQDPCM] "+audioRequestCode + COLOR_RESET);
+                aqdpcmSound(audioRequestCode, serverPort, clientPort, hostIP, "L33");
+                sendVoid(serverPort, clientPort, hostIP);
+                System.out.println(CYAN + "[AQDPCM] "+audioRequestCode + COLOR_RESET);
+                aqdpcmSound(audioRequestCode, serverPort, clientPort, hostIP, "L20");
+                sendVoid(serverPort, clientPort, hostIP);
+
+            } else if (input.equals("M") || input.equals("m")) {
+
+                System.out.println("ENTER IMAGE CODE");
+                input = reader.readLine();  
+                imageRequestCode = input;
+
+                System.out.println(YELLOW + "[IMAGE input 1] "+imageRequestCode + COLOR_RESET);
+                imageCapture(imageRequestCode, clientPort, serverPort, hostIP, 1);
+                sendVoid(serverPort, clientPort, hostIP);
+                System.out.println(YELLOW + "[IMAGE input 2] "+imageRequestCode + COLOR_RESET);
+                imageCapture(imageRequestCode, clientPort, serverPort, hostIP, 2);
+                sendVoid(serverPort, clientPort, hostIP);
+
+            } else if (input.equals("Q") || input.equals("q")) {
+
+                System.out.println("ENTER COPTER CODE");
+                input = reader.readLine();  
+                copterRequestCode = input;
+
+                System.out.println(PURPLE + "[ITHAKICOPTER]" + COLOR_RESET);
+                ithakiCopter(copterRequestCode, 48078, hostIP, 1);
+                sendVoid(serverPort, clientPort, hostIP);
+                System.out.println(PURPLE + "[ITHAKICOPTER]" + COLOR_RESET);
+                ithakiCopter(copterRequestCode, 48078, hostIP, 2);
+                sendVoid(serverPort, clientPort, hostIP);
+
+            } else if ( input.equals("V") || input.equals("v") ) {
+                
+                System.out.println("ENTER VEHICLE CODE");
+                input = reader.readLine();  
+                vehicleRequestCode = input;
+
+                String pid;
+                System.out.println(RED + "[DIAGNOSTICS] Engine Run time" + COLOR_RESET);
+                pid = "1F";
+                onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+                sendVoid(serverPort, clientPort, hostIP);
+                System.out.println(RED + "[DIAGNOSTICS] Ithaki air temperature" + COLOR_RESET);
+                pid = "0F";
+                onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+                sendVoid(serverPort, clientPort, hostIP);
+                System.out.println(RED + "[DIAGNOSTICS] Throttle position" + COLOR_RESET);
+                pid = "11";
+                onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+                sendVoid(serverPort, clientPort, hostIP);
+                System.out.println(RED + "[DIAGNOSTICS] Engine RPM" + COLOR_RESET);
+                pid = "0C";
+                onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+                sendVoid(serverPort, clientPort, hostIP);
+                System.out.println(RED + "[DIAGNOSTICS] Vehicle speed" + COLOR_RESET);
+                pid = "0D";
+                onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+                sendVoid(serverPort, clientPort, hostIP);
+                System.out.println(RED + "[DIAGNOSTICS] Coolant Temperature" + COLOR_RESET);
+                pid = "05";
+                onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
+
+            }
+            System.out.println("Continue (y/n) ?");
+            input = reader.readLine();  // Read user input
+            if ( input.equals("y") || input.equals("Y") ) {
+                flag = true;
+            } else {
+                flag = false;
+            }
+        }
         
-        // System.out.println(PURPLE + "[ITHAKICOPTER]" + COLOR_RESET);
-        // ithakiCopter(copterRequestCode, 48078, hostIP, 1);
-        // sendVoid(serverPort, clientPort, hostIP);
-        // System.out.println(PURPLE + "[ITHAKICOPTER]" + COLOR_RESET);
-        // ithakiCopter(copterRequestCode, 48078, hostIP, 2);
-        // sendVoid(serverPort, clientPort, hostIP);
-        
-        // String pid;
-        // System.out.println(RED + "[DIAGNOSTICS] Engine Run time" + COLOR_RESET);
-        // pid = "1F";
-        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
-        // sendVoid(serverPort, clientPort, hostIP);
-        // System.out.println(RED + "[DIAGNOSTICS] Ithaki air temperature" + COLOR_RESET);
-        // pid = "0F";
-        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
-        // sendVoid(serverPort, clientPort, hostIP);
-        // System.out.println(RED + "[DIAGNOSTICS] Throttle position" + COLOR_RESET);
-        // pid = "11";
-        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
-        // sendVoid(serverPort, clientPort, hostIP);
-        // System.out.println(RED + "[DIAGNOSTICS] Engine RPM" + COLOR_RESET);
-        // pid = "0C";
-        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
-        // sendVoid(serverPort, clientPort, hostIP);
-        // System.out.println(RED + "[DIAGNOSTICS] Vehicle speed" + COLOR_RESET);
-        // pid = "0D";
-        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
-        // sendVoid(serverPort, clientPort, hostIP);
-        // System.out.println(RED + "[DIAGNOSTICS] Coolant Temperature" + COLOR_RESET);
-        // pid = "05";
-        // onBoardDiagnostics(vehicleRequestCode, serverPort, clientPort, hostIP, pid);
     }
 
 
@@ -415,9 +481,13 @@ public class UserApplication {
         // Total datagram sound packets that will be received
         int totalPackets = 400;
         int mask1 = 15,mask2 = 240;
+        // Quantitizer
         int b = 5,rx;
+        // Nibbles used for decoding
         int nibble1,nibble2;
+        // Differences
         int diff1,diff2;
+        // Two sound samples
         int x1 = 0,x2 = 0;
         int counter = 0;
         ArrayList<Integer> differences = new ArrayList<Integer>();
@@ -581,13 +651,19 @@ public class UserApplication {
     throws IOException {
         // Total datagram sound packets that will be received
         int totalPackets = 600;
+        // Bit masks
         int mask1 = 15,mask2 = 240;
+        // Mean and step values
         int mean, b, rx;
+        // Nibbles used for decoding
         int nibble1,nibble2;
+        // Differences
         int diff1,diff2;
+        // Two sound samples per packet
         int x1 = 0,x2 = 0;
         int counter = 0;
         int temp = 0;
+        // Bit mask
         int signMask = 0x80;
         ArrayList<Integer> meanValues = new ArrayList<Integer>();
         ArrayList<Integer> bValues = new ArrayList<Integer>();
@@ -829,7 +905,7 @@ public class UserApplication {
         }
         String msg = "";
         ArrayList<String> messages = new ArrayList<String>();
-        final byte[] txbuffer = echoRequestCode.getBytes();
+        final byte[] txbuffer = copterRequestCode.getBytes();
         // Socket used to send packets to server
         final InetAddress hostAddress = InetAddress.getByAddress(hostIP);
         final DatagramSocket sendSocket = new DatagramSocket();
