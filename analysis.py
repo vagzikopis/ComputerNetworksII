@@ -3,7 +3,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 
-global echo_code, path
+global echo_code
+global path
 
 # Echo Function
 # G1 Delay Response times
@@ -238,15 +239,36 @@ def G18():
 # #G19
 def G19():
     df = pd.read_csv(path+"COPTER1.csv")
-    df['copter'] = df['copter'].str.split(r"\bALTITUDE\b", expand = True)[1]
-    df['copter'] = df['copter'].str.split(r"\bTEMPERATURE\b", expand = True)[0]
-    df['copter'] = df['copter'].str.replace("=0", "")
-    df['copter'] = df['copter'].str.replace("=", "")
-    df['copter'] = df['copter'].astype(int)
-    sns.lineplot(x=df.index, y=df.copter, linewidth = 1)
-    plt.title("G19: Copter Altitude")
+    df['LMOTOR'] = df['copter'].str.split(r"\bLMOTOR\b", expand = True)[1]
+    df['LMOTOR'] = df['LMOTOR'].str.split(r"\bRMOTOR\b", expand = True)[0]
+    df['LMOTOR'] = df['LMOTOR'].str.replace("=", "")
+    df['LMOTOR'] = df['LMOTOR'].astype(int)
+    
+    df['RMOTOR'] = df['copter'].str.split(r"\bRMOTOR\b", expand = True)[1]
+    df['RMOTOR'] = df['RMOTOR'].str.split(r"\bALTITUDE\b", expand = True)[0]
+    df['RMOTOR'] = df['RMOTOR'].str.replace("=", "")
+    df['RMOTOR'] = df['RMOTOR'].astype(int)
+
+    df['TEMPERATURE'] = df['copter'].str.split(r"\bTEMPERATURE\b", expand = True)[1]
+    df['TEMPERATURE'] = df['TEMPERATURE'].str.split(r"\bPRESSURE\b", expand = True)[0]
+    df['TEMPERATURE'] = df['TEMPERATURE'].str.replace("=", "")
+    df['TEMPERATURE'] = df['TEMPERATURE'].str.replace("+", "")
+    df['TEMPERATURE'] = df['TEMPERATURE'].astype(float)
+
+    df['PRESSURE'] = df['copter'].str.split(r"\bPRESSURE\b", expand = True)[1]
+    df['PRESSURE'] = df['PRESSURE'].str.split(r"\bTELEMETRY\b", expand = True)[0]
+    df['PRESSURE'] = df['PRESSURE'].str.replace("=", "")
+    df['PRESSURE'] = df['PRESSURE'].astype(float)
+
+    df['ALTITUDE'] = df['copter'].str.split(r"\bALTITUDE\b", expand = True)[1]
+    df['ALTITUDE'] = df['ALTITUDE'].str.split(r"\bTEMPERATURE\b", expand = True)[0]
+    df['ALTITUDE'] = df['ALTITUDE'].str.replace("=", "")
+    df['ALTITUDE'] = df['ALTITUDE'].astype(int)
+    
+    sns.lineplot(data=df[['ALTITUDE','TEMPERATURE','LMOTOR','RMOTOR','PRESSURE']], linewidth = 2)
+    plt.title("G19: Copter Flight 1 Metrics")
     # Set x-axis label
-    plt.ylabel('Altitude')
+    plt.ylabel('')
     # Set y-axis label
     plt.xlabel('Samples')
     plt.tight_layout()
@@ -256,15 +278,36 @@ def G19():
 # #G20
 def G20():
     df = pd.read_csv(path+"COPTER2.csv")
-    df['copter'] = df['copter'].str.split(r"\bALTITUDE\b", expand = True)[1]
-    df['copter'] = df['copter'].str.split(r"\bTEMPERATURE\b", expand = True)[0]
-    df['copter'] = df['copter'].str.replace("=0", "")
-    df['copter'] = df['copter'].str.replace("=", "")
-    df['copter'] = df['copter'].astype(int)
-    sns.lineplot(x=df.index, y=df.copter, linewidth = 1)
-    plt.title("G19: Copter Altitude")
+    df['LMOTOR'] = df['copter'].str.split(r"\bLMOTOR\b", expand = True)[1]
+    df['LMOTOR'] = df['LMOTOR'].str.split(r"\bRMOTOR\b", expand = True)[0]
+    df['LMOTOR'] = df['LMOTOR'].str.replace("=", "")
+    df['LMOTOR'] = df['LMOTOR'].astype(int)
+    
+    df['RMOTOR'] = df['copter'].str.split(r"\bRMOTOR\b", expand = True)[1]
+    df['RMOTOR'] = df['RMOTOR'].str.split(r"\bALTITUDE\b", expand = True)[0]
+    df['RMOTOR'] = df['RMOTOR'].str.replace("=", "")
+    df['RMOTOR'] = df['RMOTOR'].astype(int)
+
+    df['TEMPERATURE'] = df['copter'].str.split(r"\bTEMPERATURE\b", expand = True)[1]
+    df['TEMPERATURE'] = df['TEMPERATURE'].str.split(r"\bPRESSURE\b", expand = True)[0]
+    df['TEMPERATURE'] = df['TEMPERATURE'].str.replace("=", "")
+    df['TEMPERATURE'] = df['TEMPERATURE'].str.replace("+", "")
+    df['TEMPERATURE'] = df['TEMPERATURE'].astype(float)
+
+    df['PRESSURE'] = df['copter'].str.split(r"\bPRESSURE\b", expand = True)[1]
+    df['PRESSURE'] = df['PRESSURE'].str.split(r"\bTELEMETRY\b", expand = True)[0]
+    df['PRESSURE'] = df['PRESSURE'].str.replace("=", "")
+    df['PRESSURE'] = df['PRESSURE'].astype(float)
+
+    df['ALTITUDE'] = df['copter'].str.split(r"\bALTITUDE\b", expand = True)[1]
+    df['ALTITUDE'] = df['ALTITUDE'].str.split(r"\bTEMPERATURE\b", expand = True)[0]
+    df['ALTITUDE'] = df['ALTITUDE'].str.replace("=", "")
+    df['ALTITUDE'] = df['ALTITUDE'].astype(int)
+    
+    sns.lineplot(data=df[['ALTITUDE','TEMPERATURE','LMOTOR','RMOTOR','PRESSURE']], linewidth = 2)
+    plt.title("G20: Copter Flight 2 Metrics")
     # Set x-axis label
-    plt.ylabel('Altitude')
+    plt.ylabel('')
     # Set y-axis label
     plt.xlabel('Samples')
     plt.tight_layout()
@@ -328,7 +371,8 @@ def T():
 if __name__ == "__main__":
     sns.set_style("darkgrid")
     path = "session/"
-    
+    G19()
+    G20()
     flag = True
     while flag:
         graph = input("Enter code of the graph to be displayed (G1-20, R1, OBD):")
